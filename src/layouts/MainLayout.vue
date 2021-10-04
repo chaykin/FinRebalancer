@@ -33,6 +33,18 @@
           Essential Links
         </q-item-label>
 
+        <RouteLink
+          title="Home"
+          link="/"
+          icon="home"
+        />
+
+        <RouteLink
+          title="Bonds"
+          link="/bonds"
+          icon="trending_up"
+        />
+
         <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
@@ -49,6 +61,7 @@
 
 <script lang="ts">
 import EssentialLink from 'components/EssentialLink.vue'
+import RouteLink from 'components/RouteLink.vue'
 
 const linksList = [
   {
@@ -101,7 +114,7 @@ export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    EssentialLink
+    EssentialLink, RouteLink
   },
 
   setup () {
