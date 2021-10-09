@@ -23,12 +23,12 @@ export class SecurityMarketdataFetcher extends BaseFetcher {
     return this.fetch<SecurityMarketdataInfoJson>(url)
       .then(r => {
         const marketdata = new MoexJsonResults(r.marketdata);
-        const price = marketdata.getSingleValue(
+        let price = marketdata.getSingleValue(
           () => true,
           row => row.getOrUndefined(MD_COL_WA_PRICE) || row.getOrUndefined(MD_COL_LAST_PRICE));
 
-        if (price === undefined) {
-      //    throw new Error(`Could not fetch marketdata security info by code ${briefInfo.code}`);
+        if (price != undefined) {
+          price *= (briefInfo.faceValue > 0 ? Number(briefInfo.faceValue) / 100.0 : 1);
         }
 
         const securities = new MoexJsonResults(r.securities);

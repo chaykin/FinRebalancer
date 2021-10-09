@@ -5,7 +5,7 @@ export class Portfolio {
 
   private _money = 0;
 
-  constructor(private readonly name: string) {
+  constructor(public readonly name: string) {
   }
 
   changeSecurity(security: Security, changeCount: number) {
