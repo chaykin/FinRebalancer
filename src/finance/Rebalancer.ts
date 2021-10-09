@@ -1,38 +1,40 @@
-import { IPortfolioItem, Portfolio } from 'src/finance/Portfolio';
-import { InvestmentPlan } from 'src/finance/InvestmentPlan';
-import { InvestmentPlanCategory } from 'src/finance/InvestmentPlanCategory';
-import { Security } from 'src/finance/Security';
+import {IPortfolioItem, Portfolio} from 'src/finance/Portfolio';
+import {InvestmentPlan} from 'src/finance/InvestmentPlan';
+import {InvestmentPlanCategory} from 'src/finance/InvestmentPlanCategory';
+import {Security} from 'src/finance/Security';
 
 const ONE_HUNDRED = 100.0;
 
 export class Rebalancer {
 
   rebalance(portfolio: Portfolio, plan: InvestmentPlan) {
-    return new RebalancedCategory(portfolio, [plan, ONE_HUNDRED], portfolio.money);
+    const root = new RebalancedCategory(portfolio, [plan, ONE_HUNDRED]);
+    root.calcTargetValue(root.currentValue + portfolio.money);
+    return root;
   }
 }
 
 export class RebalancedCategory {
+  readonly currentValue = 0;
+
   private readonly planCategory: InvestmentPlanCategory | InvestmentPlan;
   private readonly _children: RebalancedCategory[] = [];
   private readonly _rebalancedSecurityItems: { security: Security, currentValue: number, currentPercent: number }[] = [];
   private readonly _targetPercent;
+  private readonly totalTargetPercent;
 
   private currentPercent = ONE_HUNDRED;
-  private currentValue = 0;
   private _targetValue = 0;
 
-  constructor(portfolio: Portfolio, planCategoryItem: [InvestmentPlanCategory | InvestmentPlan, number], money: number) {
+  constructor(portfolio: Portfolio, planCategoryItem: [InvestmentPlanCategory | InvestmentPlan, number], totalTargetPercent = 100) {
     this.planCategory = planCategoryItem[0];
     this._targetPercent = planCategoryItem[1];
+    this.totalTargetPercent = totalTargetPercent * this.targetPercent / ONE_HUNDRED;
 
-    this._children = [...this.getCategories().entries()].map(e => new RebalancedCategory(portfolio, e, money * e[1] / ONE_HUNDRED));
+    this._children = [...this.getCategories().entries()].map(e => new RebalancedCategory(portfolio, e, this.totalTargetPercent));
 
     this.currentValue += this.calcCategoryValue(portfolio.securities);
-    this._children.forEach(c => {
-      c.currentPercent = ONE_HUNDRED * c.currentValue / this.currentValue;
-      c._targetValue = c._targetPercent * (money + this.currentValue) / ONE_HUNDRED;
-    });
+    this._children.forEach(c => c.currentPercent = ONE_HUNDRED * c.currentValue / this.currentValue);
   }
 
   get name() {
@@ -63,6 +65,11 @@ export class RebalancedCategory {
     return this._rebalancedSecurityItems;
   }
 
+  calcTargetValue(totalPrice: number) {
+    this._targetValue = this.totalTargetPercent * totalPrice / ONE_HUNDRED;
+    this._children.forEach(c => c.calcTargetValue(totalPrice));
+  }
+
   private calcCategoryValue(securities: ReadonlyMap<string, IPortfolioItem>): number {
     let value = this._children.map(c => c.currentValue).reduce((r, v) => r + v, 0);
 
@@ -74,7 +81,7 @@ export class RebalancedCategory {
           const security = item.getSecurity();
           const val = security.price * item.getCount();
 
-          this._rebalancedSecurityItems.push({ security: security, currentValue: val, currentPercent: 0 });
+          this._rebalancedSecurityItems.push({security: security, currentValue: val, currentPercent: 0});
           securityValue += val;
         }
       }
