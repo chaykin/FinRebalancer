@@ -44,13 +44,12 @@ export default defineComponent({
         .then(sps => PromiseUtil.allSettled(sps))
         .then(results => {
           const calcProfit = (security: Security): number => {
+            const taxRate = 0.13;
 
             const fullPrice = security.price + security.accuredInterest;
             const income = security.faceValue + security.bondization;
-            let profit = income - fullPrice;
-            if (profit > 0) {
-              profit *= (1 - 0.13) // 13% tax
-            }
+            let tax = (security.faceValue > fullPrice ? taxRate * (security.faceValue - fullPrice) : 0) + taxRate * security.bondization;
+            const profit = income - fullPrice - tax;
             const profitPercent = profit / fullPrice;
             const r = 100.0 * profitPercent * 365.0 / security.daysToRedemption;
 
