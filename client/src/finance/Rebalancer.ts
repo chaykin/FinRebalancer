@@ -9,7 +9,7 @@ export class Rebalancer {
 
   rebalance(portfolio: Portfolio, plan: InvestmentPlan) {
     const root = new RebalancedCategory(portfolio, [plan, ONE_HUNDRED]);
-    root.calcTargetValue(root.currentValue + portfolio.money);
+    root.calcTargetValue(root.currentValue);
     return root;
   }
 }

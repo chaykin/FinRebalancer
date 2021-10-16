@@ -3,8 +3,6 @@ import { Security } from 'src/finance/Security';
 export class Portfolio {
   private readonly _securities: Map<string, PortfolioItem> = new Map;
 
-  private _money = 0;
-
   constructor(public readonly name: string) {
   }
 
@@ -28,14 +26,6 @@ export class Portfolio {
 
   get securities(): ReadonlyMap<string, IPortfolioItem> {
     return this._securities;
-  }
-
-  get money(): number {
-    return this._money;
-  }
-
-  set money(value: number) {
-    this._money = value;
   }
 }
 
