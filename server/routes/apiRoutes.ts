@@ -1,5 +1,5 @@
 import { AbstractRoutes } from './abstractRoutes';
-import TestRoutes from './testRoutes';
+import PortfolioRoutes from './portfolioRoutes';
 
 class ApiRoutes extends AbstractRoutes {
 
@@ -8,16 +8,7 @@ class ApiRoutes extends AbstractRoutes {
   }
 
   protected routes(): void {
-    this.express.get('/', (req, res) => {
-      res.send('It works!');
-    });
-
-    this.express.use('/api', TestRoutes);
-
-    // handle undefined routes
-    this.express.use('*', (req, res) => {
-      res.send('Invalid URL!');
-    });
+    this.express.use('/portfolio', PortfolioRoutes);
   }
 }
 

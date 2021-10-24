@@ -34,10 +34,10 @@ model Security {
 model Bond {
   securityCode    String   @id @map("security_code") @db.VarChar(16)
   bondType        String?  @map("bond_type") @db.VarChar(64)
-  faceValue       Decimal  @map("face_value") @db.Decimal(4, 0)
-  accruedInterest Decimal  @map("accrued_interest") @db.Decimal(4, 0)
+  faceValue       Decimal  @map("face_value") @db.Decimal(12, 4)
+  accruedInterest Decimal  @map("accrued_interest") @db.Decimal(12, 4)
   matDate         DateTime @map("mat_date") @db.Date
-  bondization     Decimal  @db.Decimal(4, 0)
+  bondization     Decimal  @db.Decimal(12, 4)
   security        Security @relation(fields: [securityCode], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "security_code")
 
   @@index([matDate], map: "mat_date_index")
@@ -49,11 +49,11 @@ model Trade {
   portfolioCode   String    @map("portfolio_code") @db.VarChar(32)
   type            String    @db.VarChar(16)
   count           Int
-  price           Decimal   @db.Decimal(4, 0)
-  total           Decimal   @db.Decimal(4, 0)
+  price           Decimal   @db.Decimal(12, 4)
+  total           Decimal   @db.Decimal(12, 4)
   tradeDate       DateTime  @map("trade_date") @db.Timestamp(6)
   securityCode    String    @map("security_code") @db.VarChar(16)
-  countMultiplier Decimal   @default(1) @map("count_multiplier") @db.Decimal(4, 0)
+  countMultiplier Decimal   @default(1) @map("count_multiplier") @db.Decimal(12, 4)
   portfolio       Portfolio @relation("portfolioTotrade", fields: [portfolioCode], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "portfolio")
   security        Security  @relation("securityTotrade", fields: [securityCode], references: [code], onUpdate: Restrict, map: "security_code")
 
