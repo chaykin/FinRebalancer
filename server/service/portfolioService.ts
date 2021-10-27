@@ -35,12 +35,12 @@ export default class PortfolioService {
     });
   }
 
-  public getPortfolio(code: string): Promise<Portfolio & { trade: Trade[] }> {
+  public getPortfolio(code: string): Promise<Portfolio & { trades: Trade[] }> {
     const prisma = PrismaMan.getPrisma();
     return prisma.portfolio.findUnique({
       where: { code },
       include: {
-        trade: true
+        trades: true
       }
     });
   }

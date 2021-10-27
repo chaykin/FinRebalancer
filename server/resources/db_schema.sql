@@ -5,7 +5,7 @@
 -- Dumped from database version 13.4
 -- Dumped by pg_dump version 13.4 (Ubuntu 13.4-0ubuntu0.21.04.1)
 
--- Started on 2021-10-24 19:09:03 +05
+-- Started on 2021-10-27 18:47:15 +05
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -40,6 +40,21 @@ CREATE TABLE public.bond (
 ALTER TABLE public.bond OWNER TO pgadmin;
 
 --
+-- TOC entry 208 (class 1259 OID 16552)
+-- Name: currency; Type: TABLE; Schema: public; Owner: pgadmin
+--
+
+CREATE TABLE public.currency (
+    currency_id character varying(16) NOT NULL,
+    name character varying(64) NOT NULL,
+    amount numeric(16,4) NOT NULL,
+    portfolio_code character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.currency OWNER TO pgadmin;
+
+--
 -- TOC entry 201 (class 1259 OID 16391)
 -- Name: portfolio; Type: TABLE; Schema: public; Owner: pgadmin
 --
@@ -51,6 +66,60 @@ CREATE TABLE public.portfolio (
 
 
 ALTER TABLE public.portfolio OWNER TO pgadmin;
+
+--
+-- TOC entry 205 (class 1259 OID 16521)
+-- Name: portfolio_group; Type: TABLE; Schema: public; Owner: pgadmin
+--
+
+CREATE TABLE public.portfolio_group (
+    portfolio_code character varying(32) NOT NULL,
+    group_name character varying(128) NOT NULL,
+    id integer NOT NULL,
+    parent_id integer,
+    target_percent numeric(7,4) NOT NULL
+);
+
+
+ALTER TABLE public.portfolio_group OWNER TO pgadmin;
+
+--
+-- TOC entry 206 (class 1259 OID 16524)
+-- Name: portfolio_group_id_seq; Type: SEQUENCE; Schema: public; Owner: pgadmin
+--
+
+CREATE SEQUENCE public.portfolio_group_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.portfolio_group_id_seq OWNER TO pgadmin;
+
+--
+-- TOC entry 2257 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: portfolio_group_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pgadmin
+--
+
+ALTER SEQUENCE public.portfolio_group_id_seq OWNED BY public.portfolio_group.id;
+
+
+--
+-- TOC entry 207 (class 1259 OID 16537)
+-- Name: portfolio_group_item; Type: TABLE; Schema: public; Owner: pgadmin
+--
+
+CREATE TABLE public.portfolio_group_item (
+    portfolio_group_id integer NOT NULL,
+    security_code character varying(16) NOT NULL
+);
+
+
+ALTER TABLE public.portfolio_group_item OWNER TO pgadmin;
 
 --
 -- TOC entry 200 (class 1259 OID 16386)
@@ -109,7 +178,7 @@ CREATE SEQUENCE public.trade_id_seq
 ALTER TABLE public.trade_id_seq OWNER TO pgadmin;
 
 --
--- TOC entry 2232 (class 0 OID 0)
+-- TOC entry 2258 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: trade_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pgadmin
 --
@@ -118,7 +187,15 @@ ALTER SEQUENCE public.trade_id_seq OWNED BY public.trade.id;
 
 
 --
--- TOC entry 2079 (class 2604 OID 16434)
+-- TOC entry 2095 (class 2604 OID 16526)
+-- Name: portfolio_group id; Type: DEFAULT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.portfolio_group ALTER COLUMN id SET DEFAULT nextval('public.portfolio_group_id_seq'::regclass);
+
+
+--
+-- TOC entry 2093 (class 2604 OID 16434)
 -- Name: trade id; Type: DEFAULT; Schema: public; Owner: pgadmin
 --
 
@@ -126,7 +203,7 @@ ALTER TABLE ONLY public.trade ALTER COLUMN id SET DEFAULT nextval('public.trade_
 
 
 --
--- TOC entry 2086 (class 2606 OID 16418)
+-- TOC entry 2101 (class 2606 OID 16418)
 -- Name: bond bond_pkey; Type: CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -135,7 +212,34 @@ ALTER TABLE ONLY public.bond
 
 
 --
--- TOC entry 2084 (class 2606 OID 16457)
+-- TOC entry 2114 (class 2606 OID 16556)
+-- Name: currency currency_pkey; Type: CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.currency
+    ADD CONSTRAINT currency_pkey PRIMARY KEY (currency_id, portfolio_code);
+
+
+--
+-- TOC entry 2112 (class 2606 OID 16541)
+-- Name: portfolio_group_item portfolio_group_item_pkey; Type: CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.portfolio_group_item
+    ADD CONSTRAINT portfolio_group_item_pkey PRIMARY KEY (portfolio_group_id, security_code);
+
+
+--
+-- TOC entry 2110 (class 2606 OID 16531)
+-- Name: portfolio_group portfolio_group_pkey; Type: CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.portfolio_group
+    ADD CONSTRAINT portfolio_group_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2099 (class 2606 OID 16457)
 -- Name: portfolio portfolio_pkey; Type: CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -144,7 +248,7 @@ ALTER TABLE ONLY public.portfolio
 
 
 --
--- TOC entry 2082 (class 2606 OID 16390)
+-- TOC entry 2097 (class 2606 OID 16390)
 -- Name: security security_pkey; Type: CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -153,7 +257,7 @@ ALTER TABLE ONLY public.security
 
 
 --
--- TOC entry 2092 (class 2606 OID 16439)
+-- TOC entry 2107 (class 2606 OID 16439)
 -- Name: trade trade_pkey; Type: CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -162,7 +266,7 @@ ALTER TABLE ONLY public.trade
 
 
 --
--- TOC entry 2087 (class 1259 OID 16428)
+-- TOC entry 2102 (class 1259 OID 16428)
 -- Name: mat_date_index; Type: INDEX; Schema: public; Owner: pgadmin
 --
 
@@ -170,7 +274,7 @@ CREATE INDEX mat_date_index ON public.bond USING btree (mat_date);
 
 
 --
--- TOC entry 2088 (class 1259 OID 16476)
+-- TOC entry 2103 (class 1259 OID 16476)
 -- Name: portfolio_code_index; Type: INDEX; Schema: public; Owner: pgadmin
 --
 
@@ -178,7 +282,7 @@ CREATE INDEX portfolio_code_index ON public.trade USING btree (portfolio_code);
 
 
 --
--- TOC entry 2089 (class 1259 OID 16479)
+-- TOC entry 2104 (class 1259 OID 16479)
 -- Name: security_code_index; Type: INDEX; Schema: public; Owner: pgadmin
 --
 
@@ -186,7 +290,7 @@ CREATE INDEX security_code_index ON public.trade USING btree (security_code);
 
 
 --
--- TOC entry 2090 (class 1259 OID 16478)
+-- TOC entry 2105 (class 1259 OID 16478)
 -- Name: trade_date_index; Type: INDEX; Schema: public; Owner: pgadmin
 --
 
@@ -194,7 +298,7 @@ CREATE INDEX trade_date_index ON public.trade USING btree (trade_date);
 
 
 --
--- TOC entry 2093 (class 1259 OID 16477)
+-- TOC entry 2108 (class 1259 OID 16477)
 -- Name: type_index; Type: INDEX; Schema: public; Owner: pgadmin
 --
 
@@ -202,7 +306,16 @@ CREATE INDEX type_index ON public.trade USING btree (type);
 
 
 --
--- TOC entry 2096 (class 2606 OID 16467)
+-- TOC entry 2118 (class 2606 OID 16532)
+-- Name: portfolio_group parent_id; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.portfolio_group
+    ADD CONSTRAINT parent_id FOREIGN KEY (parent_id) REFERENCES public.portfolio_group(id) NOT VALID;
+
+
+--
+-- TOC entry 2117 (class 2606 OID 16467)
 -- Name: trade portfolio; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -211,7 +324,25 @@ ALTER TABLE ONLY public.trade
 
 
 --
--- TOC entry 2094 (class 2606 OID 16419)
+-- TOC entry 2121 (class 2606 OID 16557)
+-- Name: currency portfolio_code; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.currency
+    ADD CONSTRAINT portfolio_code FOREIGN KEY (portfolio_code) REFERENCES public.portfolio(code) NOT VALID;
+
+
+--
+-- TOC entry 2119 (class 2606 OID 16542)
+-- Name: portfolio_group_item portfolio_group_id; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.portfolio_group_item
+    ADD CONSTRAINT portfolio_group_id FOREIGN KEY (portfolio_group_id) REFERENCES public.portfolio_group(id) NOT VALID;
+
+
+--
+-- TOC entry 2115 (class 2606 OID 16419)
 -- Name: bond security_code; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -220,7 +351,7 @@ ALTER TABLE ONLY public.bond
 
 
 --
--- TOC entry 2095 (class 2606 OID 16450)
+-- TOC entry 2116 (class 2606 OID 16450)
 -- Name: trade security_code; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -228,9 +359,17 @@ ALTER TABLE ONLY public.trade
     ADD CONSTRAINT security_code FOREIGN KEY (security_code) REFERENCES public.security(code) ON UPDATE RESTRICT ON DELETE RESTRICT NOT VALID;
 
 
--- Completed on 2021-10-24 19:09:05 +05
+--
+-- TOC entry 2120 (class 2606 OID 16547)
+-- Name: portfolio_group_item security_code; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.portfolio_group_item
+    ADD CONSTRAINT security_code FOREIGN KEY (security_code) REFERENCES public.security(code) NOT VALID;
+
+
+-- Completed on 2021-10-27 18:47:17 +05
 
 --
 -- PostgreSQL database dump complete
 --
-

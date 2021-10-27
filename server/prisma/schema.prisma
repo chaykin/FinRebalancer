@@ -8,25 +8,27 @@ datasource db {
 }
 
 model Portfolio {
-  code  String  @id @db.VarChar(32)
-  name  String  @db.VarChar(128)
-  trade Trade[] @relation("portfolioTotrade")
+  code       String     @id @db.VarChar(32)
+  name       String     @db.VarChar(128)
+  currencies Currency[] @relation("currencyToportfolio")
+  trades     Trade[]    @relation("portfolioTotrade")
 
   @@map("portfolio")
 }
 
 model Security {
-  code       String  @id @db.VarChar(16)
-  shortName  String  @map("short_name") @db.VarChar(16)
-  fullName   String  @map("full_name") @db.VarChar(128)
-  boardId    String  @map("board_id") @db.VarChar(32)
-  market     String  @db.VarChar(32)
-  engine     String  @db.VarChar(32)
-  currencyId String  @map("currency_id") @db.VarChar(8)
-  type       String  @db.VarChar(32)
-  group      String  @db.VarChar(16)
-  bond       Bond?
-  trade      Trade[] @relation("securityTotrade")
+  code                String               @id @db.VarChar(16)
+  shortName           String               @map("short_name") @db.VarChar(16)
+  fullName            String               @map("full_name") @db.VarChar(128)
+  boardId             String               @map("board_id") @db.VarChar(32)
+  market              String               @db.VarChar(32)
+  engine              String               @db.VarChar(32)
+  currencyId          String               @map("currency_id") @db.VarChar(8)
+  type                String               @db.VarChar(32)
+  group               String               @db.VarChar(16)
+  bond                Bond?
+  portfolioGroupItems PortfolioGroupItem[] @relation("portfolio_group_itemTosecurity")
+  trades              Trade[]              @relation("securityTotrade")
 
   @@map("security")
 }
@@ -62,4 +64,38 @@ model Trade {
   @@index([tradeDate], map: "trade_date_index")
   @@index([type], map: "type_index")
   @@map("trade")
+}
+
+model Currency {
+  currencyId    String    @map("currency_id") @db.VarChar(16)
+  name          String    @db.VarChar(64)
+  amount        Decimal   @db.Decimal(16, 4)
+  portfolioCode String    @map("portfolio_code") @db.VarChar(32)
+  portfolio     Portfolio @relation("currencyToportfolio", fields: [portfolioCode], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "portfolio_code")
+
+  @@id([currencyId, portfolioCode])
+  @@map("currency")
+}
+
+model PortfolioGroup {
+  portfolioCode String               @map("portfolio_code") @db.VarChar(32)
+  groupName     String               @map("group_name") @db.VarChar(128)
+  id            Int                  @id @default(autoincrement())
+  parentId      Int?                 @map("parent_id")
+  targetPercent Decimal              @map("target_percent") @db.Decimal(7, 4)
+  parent        PortfolioGroup?      @relation("portfolio_groupToportfolio_group_parent_id", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "parent_id")
+  children      PortfolioGroup[]     @relation("portfolio_groupToportfolio_group_parent_id")
+  items         PortfolioGroupItem[]
+
+  @@map("portfolio_group")
+}
+
+model PortfolioGroupItem {
+  portfolioGroupId Int            @map("portfolio_group_id")
+  securityCode     String         @map("security_code") @db.VarChar(16)
+  portfolioGroup   PortfolioGroup @relation(fields: [portfolioGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "portfolio_group_id")
+  security         Security       @relation("portfolio_group_itemTosecurity", fields: [securityCode], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "security_code")
+
+  @@id([portfolioGroupId, securityCode])
+  @@map("portfolio_group_item")
 }
