@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Portfolio {
-  code       String     @id @db.VarChar(32)
-  name       String     @db.VarChar(128)
-  currencies Currency[] @relation("currencyToportfolio")
-  trades     Trade[]    @relation("portfolioTotrade")
+  code            String           @id @db.VarChar(32)
+  name            String           @db.VarChar(128)
+  currencies      Currency[]       @relation("currencyToportfolio")
+  portfolioGroups  PortfolioGroup[] @relation("portfolioToportfolio_group")
+  trades          Trade[]          @relation("portfolioTotrade")
 
   @@map("portfolio")
 }
@@ -84,6 +85,7 @@ model PortfolioGroup {
   parentId      Int?                 @map("parent_id")
   targetPercent Decimal              @map("target_percent") @db.Decimal(7, 4)
   parent        PortfolioGroup?      @relation("portfolio_groupToportfolio_group_parent_id", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "parent_id")
+  portfolio     Portfolio            @relation("portfolioToportfolio_group", fields: [portfolioCode], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "portfolio_code")
   children      PortfolioGroup[]     @relation("portfolio_groupToportfolio_group_parent_id")
   items         PortfolioGroupItem[]
 

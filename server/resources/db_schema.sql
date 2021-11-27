@@ -3,9 +3,9 @@
 --
 
 -- Dumped from database version 13.4
--- Dumped by pg_dump version 13.4 (Ubuntu 13.4-0ubuntu0.21.04.1)
+-- Dumped by pg_dump version 13.5 (Ubuntu 13.5-0ubuntu0.21.10.1)
 
--- Started on 2021-10-27 18:47:15 +05
+-- Started on 2021-11-27 10:48:43 +05
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -100,7 +100,7 @@ CREATE SEQUENCE public.portfolio_group_id_seq
 ALTER TABLE public.portfolio_group_id_seq OWNER TO pgadmin;
 
 --
--- TOC entry 2257 (class 0 OID 0)
+-- TOC entry 2258 (class 0 OID 0)
 -- Dependencies: 206
 -- Name: portfolio_group_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pgadmin
 --
@@ -178,7 +178,7 @@ CREATE SEQUENCE public.trade_id_seq
 ALTER TABLE public.trade_id_seq OWNER TO pgadmin;
 
 --
--- TOC entry 2258 (class 0 OID 0)
+-- TOC entry 2259 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: trade_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pgadmin
 --
@@ -324,7 +324,7 @@ ALTER TABLE ONLY public.trade
 
 
 --
--- TOC entry 2121 (class 2606 OID 16557)
+-- TOC entry 2122 (class 2606 OID 16557)
 -- Name: currency portfolio_code; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -333,7 +333,16 @@ ALTER TABLE ONLY public.currency
 
 
 --
--- TOC entry 2119 (class 2606 OID 16542)
+-- TOC entry 2119 (class 2606 OID 16562)
+-- Name: portfolio_group portfolio_code; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
+--
+
+ALTER TABLE ONLY public.portfolio_group
+    ADD CONSTRAINT portfolio_code FOREIGN KEY (portfolio_code) REFERENCES public.portfolio(code) NOT VALID;
+
+
+--
+-- TOC entry 2120 (class 2606 OID 16542)
 -- Name: portfolio_group_item portfolio_group_id; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -360,7 +369,7 @@ ALTER TABLE ONLY public.trade
 
 
 --
--- TOC entry 2120 (class 2606 OID 16547)
+-- TOC entry 2121 (class 2606 OID 16547)
 -- Name: portfolio_group_item security_code; Type: FK CONSTRAINT; Schema: public; Owner: pgadmin
 --
 
@@ -368,8 +377,9 @@ ALTER TABLE ONLY public.portfolio_group_item
     ADD CONSTRAINT security_code FOREIGN KEY (security_code) REFERENCES public.security(code) NOT VALID;
 
 
--- Completed on 2021-10-27 18:47:17 +05
+-- Completed on 2021-11-27 10:48:45 +05
 
 --
 -- PostgreSQL database dump complete
 --
+
