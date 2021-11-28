@@ -1,12 +1,16 @@
 import { Board } from '../model/Board';
 
-const T0 = 0;
-const T1 = 24 * 60;
-const T2 = 2 * 24 * 60;
+export const T0 = 0;
+export const T1 = 24 * 60;
+export const T2 = 2 * 24 * 60;
 
 export function getDate(board: Board): Date {
+  return getDateForMode(getMode(board));
+}
+
+export function getDateForMode(mode: number): Date {
   const date = new Date();
-  date.setMinutes(getMode(board) + date.getMinutes() - date.getTimezoneOffset());
+  date.setMinutes(mode + date.getMinutes() - date.getTimezoneOffset());
   return date;
 }
 

@@ -1,7 +1,10 @@
-import { Portfolio, Trade } from '@prisma/client';
+import { Portfolio, PortfolioGroup, PortfolioGroupItem, Trade } from '@prisma/client';
 import PrismaMan from '../prisma/PrismaMan';
 import { Prisma } from '.prisma/client';
 import SecurityService from './securityService';
+import TradeConsolidateService from './tradeConsolidateService';
+import PortfolioConsolidator, { PortfolioConsolidation } from './portfolioConsolidator';
+import { getDateForMode, T2 } from './tradeDateService';
 
 export const TYPE_BUY = 'buy';
 export const TYPE_SELL = 'sell';
@@ -35,14 +38,47 @@ export default class PortfolioService {
     });
   }
 
-  public getPortfolio(code: string): Promise<Portfolio & { trades: Trade[] }> {
+  public getPortfolio(code: string): Promise<PortfolioConsolidation> {
     const prisma = PrismaMan.getPrisma();
-    return prisma.portfolio.findUnique({
-      where: { code },
-      include: {
-        trades: true
-      }
-    });
+
+    return TradeConsolidateService.getInstance().then(srv =>
+      prisma.portfolio.findUnique({
+        where: { code },
+        include: {
+          portfolioGroups: {
+            include: {
+              items: {
+                include: {
+                  security: {
+                    include: {
+                      bond: {
+                        select: {
+                          matDate: true
+                        }
+                      }
+                    }
+                  }
+                },
+                where: {
+                  security: {
+                    OR: [
+                      { bond: null },
+                      {
+                        bond: {
+                          matDate: {
+                            gte: getDateForMode(T2)
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }).then(p => new PortfolioConsolidator().consolidate(srv, p))
+    );
   }
 
   public addNormalTrade(portfolioCode: string, type: string, count: number, price: Prisma.Decimal, total: Prisma.Decimal, tradeDate: Date, securityCode: string): Promise<Trade> {

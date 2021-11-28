@@ -1,6 +1,6 @@
 import { BaseFetcher, COL_VALUE } from './BaseFetcher';
 import { Board } from '../../model/Board';
-import { formattedDate } from '../../service/currentDateService';
+import { formattedDate } from '../../service/tradeDateService';
 import { JsonDataTable, MoexJsonResults } from '../jsonresults/MoexJsonResults';
 
 const COL_COUPON_DATE = 'coupondate';
