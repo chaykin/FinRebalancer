@@ -66,10 +66,7 @@ export default class TradeConsolidateService {
   }
 
   public getSecurityConsolidation(portfolioCode: string, securityCode: string): Consolidation {
-    const portfolioConsolidation = this.cache.get(portfolioCode);
-    if (!portfolioConsolidation) {
-      throw new Error(`Could not find consolidation data for portfolio ${portfolioCode}`);
-    }
+    const portfolioConsolidation = this._getPortfolioSecurityConsolidation(portfolioCode);
 
     let securityConsolidation = portfolioConsolidation.get(securityCode);
     if (!securityConsolidation) {
@@ -77,6 +74,42 @@ export default class TradeConsolidateService {
     }
 
     return securityConsolidation;
+  }
+
+  public getPortfolioSecurityConsolidation(portfolioCode: string): PortfolioConsolidationContainer {
+    return new PortfolioConsolidationContainer(this._getPortfolioSecurityConsolidation(portfolioCode));
+  }
+
+  private _getPortfolioSecurityConsolidation(portfolioCode: string): Map<string, Consolidation> {
+    const portfolioConsolidation = this.cache.get(portfolioCode);
+    if (!portfolioConsolidation) {
+      throw new Error(`Could not find consolidation data for portfolio ${portfolioCode}`);
+    }
+
+    return portfolioConsolidation;
+  }
+}
+
+export class PortfolioConsolidationContainer {
+  private readonly data: Map<string, Consolidation>;
+
+  constructor(data: Map<string, Consolidation>) {
+    this.data = new Map(data);
+  }
+
+  public extract(key: string): Consolidation {
+    let securityConsolidation = this.data.get(key);
+    if (securityConsolidation) {
+      this.data.delete(key);
+    } else {
+      securityConsolidation = { count: new Prisma.Decimal(0), avg: new Prisma.Decimal(0) };
+    }
+
+    return securityConsolidation;
+  }
+
+  public getKeys(): IterableIterator<string> {
+    return this.data.keys();
   }
 }
 

@@ -5,13 +5,15 @@ import TradeConsolidateService, { Consolidation } from './tradeConsolidateServic
 export default class PortfolioConsolidator {
 
   public consolidate(tradeSrv: TradeConsolidateService, p: Portfolio & { portfolioGroups: (PortfolioGroup & { items: (PortfolioGroupItem & { security: Security & { bond: { matDate: Date } } })[] })[] }): PortfolioConsolidation {
+    const portfolioConolidation = tradeSrv.getPortfolioSecurityConsolidation(p.code);
+
     const groups = new Map<number, GroupConsolidation>();
     p.portfolioGroups.forEach(g => {
       const groupConsolidation = PortfolioConsolidator.createGroupConsolidation(g);
       groups.set(g.id, groupConsolidation);
 
       g.items.forEach(item => {
-        const secConsData = tradeSrv.getSecurityConsolidation(p.code, item.securityCode);
+        const secConsData = portfolioConolidation.extract(item.securityCode);
         groupConsolidation.securities.push(PortfolioConsolidator.createSecurityConsolidation(secConsData, item));
       });
     });
@@ -30,7 +32,8 @@ export default class PortfolioConsolidator {
     return {
       code: p.code,
       name: p.name,
-      groups: rootGroups
+      groups: rootGroups,
+      orphanedSecurities: [...portfolioConolidation.getKeys()]
     };
   }
 
@@ -80,5 +83,6 @@ export type GroupConsolidation = {
 }
 
 export type PortfolioConsolidation = Portfolio & {
-  groups: GroupConsolidation[]
+  groups: GroupConsolidation[],
+  orphanedSecurities: string[]
 }
