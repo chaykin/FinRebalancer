@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/Rebalance.vue') }],
+    children: [{ path: '', component: () => import('pages/RebalanceEx.vue') }],
   },
   {
     path: '/bonds',

@@ -1,4 +1,5 @@
 import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
 import * as express from 'express';
 
 export abstract class AbstractRoutes {
@@ -11,6 +12,7 @@ export abstract class AbstractRoutes {
   }
 
   protected middleware(): void {
+    this.express.use(cors());
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
   }
